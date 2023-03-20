@@ -5,6 +5,8 @@ const app = express();
 const PORT = env.PORT;
 
 app.use(express.json());
+app.set('view engine', 'ejs');
+
 app.use('/', require('./routes/index'));
 
 app.listen(PORT, () => {
