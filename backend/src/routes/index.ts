@@ -74,4 +74,30 @@ router.get('/get-soil-data/:polygonId', async (req, res) => {
   }
 });
 
+router.get('/get-polygon-data/:polygonId', async (req, res) => {
+  try {
+    let response = await axios.get(
+      `${url.fetchPolygonData}/${req.params.polygonId}?appid=${env.APP_ID}`
+    );
+
+    let data = response.data;
+
+    let finalData = {
+      id: data.id,
+      name: data.name,
+      coordinates: data.geo_json.geometry.coordinates,
+      area: {
+        hectares: data.area.toFixed(2),
+        acres: (data.area * 2.47105).toFixed(2),
+        squareMeter: (data.area * 10000).toFixed(2),
+        squareFoot: (data.area * 107639).toFixed(2),
+      },
+    };
+
+    return res.send({ status: true, finalData });
+  } catch (e) {
+    return res.send({ status: false, e: e.message });
+  }
+});
+
 module.exports = router;
