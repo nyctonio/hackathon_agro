@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import Faq from '@/components/console/common/faq';
+import Faq from '@/components/panel/common/faq';
 import Link from 'next/link';
 const Page = () => {
   return (

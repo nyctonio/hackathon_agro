@@ -13,6 +13,9 @@
             padding: 0;
         }
     </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.3.4/axios.min.js"
+        integrity="sha512-LUKzDoJKOLqnxGWWIBM4lzRBlxcva2ZTztO8bTcWPmDSpkErWx0bSP4pdsjNH8kiHAUPaT06UXcb+vOEZH+HpQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 </head>
 
 <body>
@@ -144,22 +147,31 @@
         }
 
         function backendCall() {
+            let userId = '<%- JSON.stringify(userId) %>';
+            console.log('userid is ', userId)
+            userId = JSON.parse(userId);
             const coordinates = draw.getAll();
-            console.log(coordinates);
             let fieldName = document.getElementById('field_name').value;
+            console.log('data is ', fieldName, coordinates)
             if (coordinates.features.length > 0 && fieldName != '') {
                 document.getElementById('selected-info').innerHTML = "<div class='flex items-center justify-center'><button type='button' class='bg-black h-max w-max rounded-lg text-white font-bold hover:bg-gray-900 hover:cursor-not-allowed duration-[500ms,800ms]' disabled><div class='flex items-center justify-center m-[10px]'> <div class='h-5 w-5 border-t-transparent border-solid animate-spin rounded-full border-white border-4'></div><div class='ml-2'> Creating... <div></div></button></div>";
-                // const data = {
-                //     coordinates: coordinates,
-                //     name: 'test'
-                // }
-                // axios.post('/api/fields', data)
-                //     .then((response) => {
-                //         console.log(response);
-                //     })
-                //     .catch((error) => {
-                //         console.log(error);
-                //     });
+                const data = {
+                    coordinates: coordinates.features[0].geometry.coordinates,
+                    name: fieldName,
+                    userId
+                }
+                axios.post('/create-field', data)
+                    .then((response) => {
+                        console.log(response);
+                        if (response.data.status == true) {
+                            window.location.replace('http://localhost:3000/panel')
+                        }
+                    })
+                    .catch((error) => {
+                        console.log(error);
+                    });
+
+
             } else if (fieldName == '') {
                 document.getElementById('info-alert').classList.remove('bg-green-100');
                 document.getElementById('info-alert').classList.remove('text-green-700');
@@ -174,7 +186,6 @@
                 document.getElementById('info').innerHTML = 'Please Select the Farm Area';
             }
         }
-
         function deletePolygon() {
             draw.deleteAll();
         }

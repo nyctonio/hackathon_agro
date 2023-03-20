@@ -3,17 +3,79 @@ const router = express.Router();
 import axios from 'axios';
 import { url } from '../../constants/url';
 import moment from 'moment';
+import { env } from '../../constants';
+import prisma from '../../lib/prisma';
 
-router.get('/', (req, res) => {
-  res.render('map');
+router.get('/', async (req, res) => {
+  let { email } = req.query;
+  let userdata = await prisma.user.findUnique({
+    where: { email: email.toString() },
+  });
+  console.log('userdata is ', userdata);
+
+  res.render('map', { userId: userdata.id });
+});
+
+const polygonDataHandler = (polygonData: Array<object>) => {
+  try {
+    let finalData = [];
+    polygonData.map((data: any) => {
+      let tempObj = {
+        id: data.id,
+        name: data.name,
+        coordinates: data.geo_json.geometry.coordinates,
+        area: {
+          hectares: data.area.toFixed(2),
+          acres: (data.area * 2.47105).toFixed(2),
+          squareMeter: (data.area * 10000).toFixed(2),
+          squareFoot: (data.area * 107639).toFixed(2),
+        },
+      };
+      console.log('temp obj is ', tempObj);
+      finalData.push(tempObj);
+    });
+
+    return finalData;
+  } catch (e) {
+    console.log('error in filtering', e);
+    return null;
+  }
+};
+
+router.get('/get-user-polygon/:email', async (req, res) => {
+  try {
+    const email = req.params.email;
+    console.log('email is ', email);
+    const user = await prisma.user.findUnique({
+      where: {
+        email: email,
+      },
+      include: {
+        polygonId: true,
+      },
+    });
+
+    let polygonData = await axios.get(url.fetchPolygonData);
+
+    let finalData = polygonData.data.filter((a) => {
+      return user.polygonId.find((b) => b.polygonId === a.id);
+    });
+
+    let formattedData = polygonDataHandler(finalData);
+
+    return res.send({ status: true, data: formattedData });
+  } catch (err) {
+    console.log('error in getting user polygon ', err);
+    return res.send({ status: false, err: 'error' });
+  }
 });
 
 router.post('/create-field', async (req, res) => {
   try {
     console.log('body is ', req.body);
-    let { name, coordinates } = req.body;
+    let { name, coordinates, userId } = req.body;
 
-    let newField = await axios.post(url.createPolygon, {
+    let newField: any = await axios.post(url.createPolygon, {
       name,
       geo_json: {
         type: 'Feature',
@@ -25,7 +87,10 @@ router.post('/create-field', async (req, res) => {
       },
     });
 
-    console.log('new field is ', newField);
+    let polyId = newField.data.id || '';
+    let newPolygon = await prisma.polygonId.create({
+      data: { polygonId: polyId, user: { connect: { id: userId } } },
+    });
 
     return res.send({ status: true, data: newField.data });
   } catch (e) {
