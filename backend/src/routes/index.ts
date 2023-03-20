@@ -4,6 +4,10 @@ import axios from 'axios';
 import { url } from '../../constants/url';
 import moment from 'moment';
 
+router.get('/', (req, res) => {
+  res.render('map');
+});
+
 router.post('/create-field', async (req, res) => {
   try {
     console.log('body is ', req.body);
