@@ -3,7 +3,7 @@ import { signOut, signIn } from 'next-auth/react';
 
 const Login = () => {
   const signInHandler = () => {
-    signIn('google', { callbackUrl: 'http://localhost:3000/panel' });
+    signIn('google', { callbackUrl: 'https://agroai.ritesh.kr/panel' });
   };
 
   return (
