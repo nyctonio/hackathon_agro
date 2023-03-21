@@ -15,7 +15,6 @@ specifiers:
   eslint: 8.21.0
   eslint-config-next: 12.2.4
   eslint-config-prettier: ^8.5.0
-  husky: ^8.0.1
   jsonwebtoken: ^9.0.0
   mapbox-gl: ^2.13.0
   next: latest
@@ -61,7 +60,6 @@ devDependencies:
   eslint: 8.21.0
   eslint-config-next: 12.2.4_vop3wml3iobydwkmmjaboen3ki
   eslint-config-prettier: 8.5.0_eslint@8.21.0
-  husky: 8.0.2
   postcss: 8.4.20
   prettier: 2.8.1
   prisma: 4.7.1
@@ -2316,12 +2314,6 @@ packages:
   /human-signals/2.1.0:
     resolution: {integrity: sha512-B4FFZ6q/T2jhhksgkbEW3HBvWIfDW85snkQgawt07S7J5QXTk6BkNV+0yAeZrM5QpMAdYlocGoljn0sJ/WQkFw==}
     engines: {node: '>=10.17.0'}
-    dev: true
-
-  /husky/8.0.2:
-    resolution: {integrity: sha512-Tkv80jtvbnkK3mYWxPZePGFpQ/tT3HNSs/sasF9P2YfkMezDl3ON37YN6jUUI4eTg5LcyVynlb6r4eyvOmspvg==}
-    engines: {node: '>=14'}
-    hasBin: true
     dev: true
 
   /ieee754/1.2.1:
