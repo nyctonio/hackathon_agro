@@ -1,9 +1,8 @@
 import { Dropdown, MenuProps, Skeleton } from 'antd';
 import { signOut, useSession } from 'next-auth/react';
 import React from 'react';
-import { useState } from 'react';
 
-function Navbar() {
+function Navbar({ navLink, setNavLink }: any) {
   const session = useSession();
   if (session.status === 'loading')
     return <Skeleton active paragraph={{ rows: 1 }} />;
@@ -12,8 +11,6 @@ function Navbar() {
   const signOutHandler = () => {
     signOut();
   };
-
-  const [selected, setSelected] = useState('home');
 
   const items: MenuProps['items'] = [
     {
@@ -28,7 +25,7 @@ function Navbar() {
   return (
     <div className="sticky bg-[#092629] top-0 flex flex-row justify-between items-center py-2 shadow-md w-full px-8">
       <div className="left flex flex-row justify-around space-x-4">
-        {selected == 'home' ? (
+        {navLink == 'home' ? (
           <div className="home">
             <button className="bg-[#fdedd2] text-[#092629] flex flex-row space-x-2 justify-around items-center px-4 rounded-md py-2">
               <div className="icon">
@@ -41,8 +38,7 @@ function Navbar() {
           <div
             className="home"
             onClick={() => {
-              console.log('setting selected to ', selected);
-              setSelected('home');
+              setNavLink('home');
             }}
           >
             <button className="flex flex-row space-x-2 text-[#fdedd2] justify-around items-center px-4 rounded-md py-2">
@@ -54,7 +50,7 @@ function Navbar() {
           </div>
         )}
 
-        {selected == 'alert' ? (
+        {navLink == 'alert' ? (
           <div className="alert">
             <button className="bg-[#fdedd2] text-[#092629] flex flex-row space-x-2 justify-around items-center px-4 rounded-md py-2">
               <div className="icon">
@@ -66,7 +62,7 @@ function Navbar() {
         ) : (
           <div
             onClick={() => {
-              setSelected('alert');
+              setNavLink('alert');
             }}
           >
             <button className=" text-[#fdedd2] flex flex-row space-x-2 justify-around items-center px-4 rounded-md py-2">
@@ -94,7 +90,7 @@ function Navbar() {
           </Dropdown>
         </div>
         <div
-          className="text-[#fdedd2] text-2xl font-bold
+          className="text-[#fdedd2] text-xl font-bold
         "
         >
           AgroAI
