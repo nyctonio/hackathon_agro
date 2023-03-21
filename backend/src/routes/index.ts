@@ -42,6 +42,39 @@ const polygonDataHandler = (polygonData: Array<object>) => {
   }
 };
 
+router.get('/get-weather-forecast/:polygonId', async (req, res) => {
+  try {
+    console.log('in request');
+    let polygon = await axios.get(
+      `http://api.agromonitoring.com/agro/1.0/polygons/${req.params.polygonId}?appid=${env.APP_ID}`
+    );
+    let polygonData = polygon.data;
+
+    let weatherData = await axios.get(
+      `https://api.agromonitoring.com/agro/1.0/weather/forecast?lat=${polygonData.center[1]}&lon=${polygonData.center[0]}&appid=${env.APP_ID}`
+    );
+
+    let finalWeatherData = weatherData.data;
+
+    let finaldata = [];
+
+    finalWeatherData.map((weather: any) => {
+      let date = new Date(weather.dt * 1000);
+      weather = {
+        ...weather,
+        date: moment(date).format('YYYY-MM-DD HH:mm:ss'),
+      };
+      finaldata.push(weather);
+    });
+
+    console.log('polygon data is ', polygonData);
+    return res.send({ status: true, data: finaldata });
+  } catch (e) {
+    console.log('error in fetching ', e);
+    return res.send({ status: false, e: e.message });
+  }
+});
+
 router.get('/get-user-polygon/:email', async (req, res) => {
   try {
     const email = req.params.email;
@@ -132,6 +165,8 @@ router.get('/get-soil-data/:polygonId', async (req, res) => {
       `${url.fetchSoilData}&polyid=${req.params.polygonId}`
     );
 
+    response.data.dt = moment(response.data.dt * 1000).format('YYYY-MM-DD');
+
     return res.send({ status: true, data: response.data });
   } catch (e) {
     console.log('error in getting soil data ', e);
@@ -164,5 +199,7 @@ router.get('/get-polygon-data/:polygonId', async (req, res) => {
     return res.send({ status: false, e: e.message });
   }
 });
+
+router.get('/get-weather-data/:polygonId/:date', async (req, res) => {});
 
 module.exports = router;

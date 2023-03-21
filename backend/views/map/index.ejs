@@ -153,6 +153,15 @@
             const coordinates = draw.getAll();
             let fieldName = document.getElementById('field_name').value;
             console.log('data is ', fieldName, coordinates)
+            const area_hect = turf.area(coordinates.features[0]) / 10000;
+            if (area_hect < 1) {
+                alert('area is too small');
+                return;
+            }
+            if (area_hect > 100) {
+                alert('area is too large');
+                return;
+            }
             if (coordinates.features.length > 0 && fieldName != '') {
                 document.getElementById('selected-info').innerHTML = "<div class='flex items-center justify-center'><button type='button' class='bg-black h-max w-max rounded-lg text-white font-bold hover:bg-gray-900 hover:cursor-not-allowed duration-[500ms,800ms]' disabled><div class='flex items-center justify-center m-[10px]'> <div class='h-5 w-5 border-t-transparent border-solid animate-spin rounded-full border-white border-4'></div><div class='ml-2'> Creating... <div></div></button></div>";
                 const data = {

@@ -1,4 +1,4 @@
-import Navbar from '@/components/panel/common/navbar';
+import AIReport from '@/components/panel/common/aireport';
 
 const Alerts = () => {
   return (
@@ -41,13 +41,21 @@ const Alerts = () => {
   );
 };
 
-const Weather = () => {
+const Weather = ({
+  date,
+  feelsLike,
+  temp,
+}: {
+  date: string;
+  feelsLike: number;
+  temp: number;
+}) => {
   return (
     <div className="bg-white mt-4 w-full py-6 rounded-2xl border-2 border-gray-300">
       <div className="flex flex-col">
         <div>
-          <h2 className="font-bold text-md text-gray-600 text-center">
-            Bucharest, Romania
+          <h2 className="font-bold text-sm text-gray-600 text-center">
+            Weather - {date}
           </h2>
         </div>
         <div className="my-6">
@@ -71,8 +79,12 @@ const Weather = () => {
               </span>
             </div>
             <div id="temp">
-              <h4 className="text-4xl">12&deg;C</h4>
-              <p className="text-xs text-gray-500">Feels like +14&deg;C</p>
+              <h4 className="text-4xl">
+                {Math.abs(temp - 273.15).toFixed(2)}&deg;
+              </h4>
+              <p className="text-xs text-gray-500">
+                Feels like {Math.abs(feelsLike - 273.15).toFixed(2)}
+              </p>
             </div>
           </div>
         </div>
@@ -81,12 +93,87 @@ const Weather = () => {
   );
 };
 
+const NoAlert = () => {
+  return (
+    <div
+      id="info-alert"
+      className="flex bg-blue-100 rounded-lg p-4 mx-4 mb-4 text-sm text-blue-700"
+      role="alert"
+    >
+      <svg
+        className="w-5 h-5 inline mr-3"
+        fill="currentColor"
+        viewBox="0 0 20 20"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          fill-rule="evenodd"
+          d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+          clip-rule="evenodd"
+        ></path>
+      </svg>
+      <div id="info">No alerts till now</div>
+    </div>
+  );
+};
+
+const SoilInfo = (data: any) => {
+  console.log(data);
+  return (
+    <div className="relative flex flex-col items-center rounded-[20px]  max-w-[95%] mx-auto bg-white bg-clip-border shadow-3xl shadow-shadow-500 bg-navy-800 shadow-xl p-3">
+      <div className="mt-2 mb-8 w-full">
+        <h4 className="px-2 text-xl font-bold text-navy-700">Soil Data</h4>
+        <p className="mt-2 px-2 text-base text-gray-600">
+          This is the soil data for the last 24 hours
+        </p>
+      </div>
+      <div className="grid grid-cols-2 gap-4 px-2 w-full">
+        <div className="flex flex-col items-start justify-center rounded-2xl bg-white bg-clip-border px-3 py-4 shadow-xl shadow-shadow-500 dark:!bg-navy-700 ">
+          <p className="text-sm text-gray-600">Temprature at surface</p>
+          <p className="text-base font-medium text-navy-700">
+            {(data.data.data.t0 - 273.15).toFixed(2)} &deg;C
+          </p>
+        </div>
+
+        <div className="flex flex-col justify-center rounded-2xl bg-white bg-clip-border px-3 py-4 shadow-xl shadow-shadow-500 dark:!bg-navy-700 ">
+          <p className="text-sm text-gray-600">
+            Temprature at 10degree below the ground
+          </p>
+          <p className="text-base font-medium text-navy-700">
+            {(data.data.data.t10 - 273.15).toFixed(2)} &deg;C
+          </p>
+        </div>
+
+        <div className="flex flex-col items-start justify-center rounded-2xl bg-white bg-clip-border px-3 py-4 shadow-xl shadow-shadow-500 dark:!bg-navy-700">
+          <p className="text-sm text-gray-600">Moisture at Soil</p>
+          <p className="text-base font-medium text-navy-700">
+            {data.data.data.moisture} %
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export default async function Page({ params, searchParams }: any) {
   const { id } = params;
-  const response = await fetch(
-    `https://jsonplaceholder.typicode.com/posts/${id}`
+  console.log(
+    'fetching from ',
+    `${process.env.NEXT_PUBLIC_BACKEND}/get-weather-forecast/${id}`
   );
-  const post = await response.json();
+  const weatherData = await fetch(
+    `${process.env.NEXT_PUBLIC_BACKEND}/get-weather-forecast/${id}`,
+    { method: 'get', cache: 'no-cache' }
+  );
+  let soilData = await fetch(
+    `${process.env.NEXT_PUBLIC_BACKEND}/get-soil-data/${id}`,
+    { method: 'get', cache: 'no-cache' }
+  );
+  soilData = await soilData.json();
+
+  let data = await weatherData.json();
+  data = data.data;
+  console.log('weather data is ', soilData);
 
   return (
     <div>
@@ -111,7 +198,7 @@ export default async function Page({ params, searchParams }: any) {
               <div className="flex flex-col">
                 <div>
                   <h2 className="font-bold text-gray-600 text-center">
-                    Bucharest, Romania
+                    Weather - {data[0].date}
                   </h2>
                 </div>
                 <div className="my-6">
@@ -135,9 +222,13 @@ export default async function Page({ params, searchParams }: any) {
                       </span>
                     </div>
                     <div id="temp">
-                      <h4 className="text-4xl">12&deg;C</h4>
+                      <h4 className="text-4xl">
+                        {Math.abs(data[0].main.temp - 273.15).toFixed(2)}&deg;
+                      </h4>
                       <p className="text-xs text-gray-500">
-                        Feels like +14&deg;C
+                        Feels like{' '}
+                        {Math.abs(data[0].main.feels_like - 273.15).toFixed(2)}
+                        &deg;
                       </p>
                     </div>
                   </div>
@@ -146,21 +237,47 @@ export default async function Page({ params, searchParams }: any) {
             </div>
 
             <div className="flex space-x-2">
-              <Weather />
-              <Weather />
-              <Weather />
-              <Weather />
-              <Weather />
+              <Weather
+                date={data[1].date}
+                feelsLike={data[1].main.feels_like}
+                temp={data[1].main.temp}
+              />{' '}
+              <Weather
+                date={data[2].date}
+                feelsLike={data[2].main.feels_like}
+                temp={data[2].main.temp}
+              />{' '}
+              <Weather
+                date={data[3].date}
+                feelsLike={data[3].main.feels_like}
+                temp={data[3].main.temp}
+              />{' '}
+              <Weather
+                date={data[4].date}
+                feelsLike={data[4].main.feels_like}
+                temp={data[4].main.temp}
+              />{' '}
             </div>
           </div>
           <div className="w-1/2">
             <h4 className="mt-4">Alerts</h4>
+            <NoAlert />
+            {/* <Alerts />
             <Alerts />
             <Alerts />
             <Alerts />
-            <Alerts />
-            <Alerts />
+            <Alerts /> */}
           </div>
+        </div>
+
+        <div>
+          <h4 className="mt-4">Get AI Report</h4>
+          <AIReport id={id} />
+        </div>
+
+        <div>
+          <h4 className="mt-4">Soil Data</h4>
+          <SoilInfo data={soilData} />
         </div>
       </div>
     </div>
