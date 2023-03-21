@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Home from '@/components/panel/common/home';
 import { useState } from 'react';
 
-function page() {
+function Page() {
   const { status } = useSession();
   const [navLink, setNavLink] = useState('home');
   const router = useRouter();
@@ -29,4 +29,4 @@ function page() {
   );
 }
 
-export default page;
+export default Page;
